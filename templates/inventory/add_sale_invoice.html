@@ -1,0 +1,90 @@
+<!-- templates/inventory/add_sale_invoice.html -->
+{% extends 'inventory/base.html' %}
+{% block title %}Add Sale Invoice{% endblock %}
+{% block content %}
+  <h2>Add Sale Invoice</h2>
+  {% if error %}
+    <p style="color:red;">{{ error }}</p>
+  {% endif %}
+  <form method="post" id="invoice-form">
+    {% csrf_token %}
+    {{ invoice_form.as_p }}
+    <h3>Invoice Items</h3>
+    <div id="formset-area">
+      {{ formset.management_form }}
+      {% for form in formset %}
+        <div class="invoice-item">
+          {{ form.as_p }}
+        </div>
+      {% endfor %}
+    </div>
+    <!-- Button to add new invoice item row -->
+    <button type="button" id="add-item-btn" class="btn btn-secondary mb-3">Add Item</button>
+    <br>
+    <button type="submit" class="btn btn-primary">Save Invoice</button>
+  </form>
+
+  <script>
+    // Toggle debt_amount field based on payment type
+    document.addEventListener("DOMContentLoaded", function(){
+      const cashRadios = document.getElementsByName("is_cash");
+      const debtField = document.querySelector('input[name="debt_amount"]').closest('p');
+
+      function toggleDebtField(){
+          // If credit payment is selected (False)
+          let selectedValue = document.querySelector('input[name="is_cash"]:checked').value;
+          if(selectedValue === "False"){
+              debtField.style.display = "block";
+          } else {
+              debtField.style.display = "none";
+          }
+      }
+      
+      cashRadios.forEach(radio => {
+          radio.addEventListener("change", toggleDebtField);
+      });
+      
+      // Set initial state
+      toggleDebtField();
+    });
+
+    // JavaScript code to duplicate invoice item rows
+    const addItemBtn = document.getElementById('add-item-btn');
+    const formsetArea = document.getElementById('formset-area');
+
+    // Get the field containing the number of forms (management form)
+    const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+
+    addItemBtn.addEventListener('click', function() {
+      // Clone the first form row
+      const invoiceItems = document.getElementsByClassName('invoice-item');
+      if (invoiceItems.length === 0) return;
+
+      const newForm = invoiceItems[0].cloneNode(true); // Deep clone
+      // Get current form count
+      let formIndex = parseInt(totalForms.value);
+
+      // Update field names and IDs in the cloned form
+      newForm.querySelectorAll('input, select, textarea').forEach(function(input) {
+        // Update name
+        if (input.name) {
+          input.name = input.name.replace(/form-\d+-/, `form-${formIndex}-`);
+        }
+        // Update id
+        if (input.id) {
+          input.id = input.id.replace(/form-\d+-/, `form-${formIndex}-`);
+        }
+        // Clear values
+        if(input.type !== 'hidden') {
+          input.value = '';
+        }
+      });
+
+      // Add the new form to the formset area
+      formsetArea.appendChild(newForm);
+
+      // Increment the form count in management form
+      totalForms.value = formIndex + 1;
+    });
+  </script>
+{% endblock %}

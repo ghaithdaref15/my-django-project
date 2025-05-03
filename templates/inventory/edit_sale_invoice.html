@@ -1,0 +1,18 @@
+<!-- templates/inventory/edit_sale_invoice.html -->
+{% extends 'inventory/base.html' %}
+{% block title %}Edit Sale Invoice{% endblock %}
+{% block content %}
+    <h2>Edit Sale Invoice #{{ invoice.id }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ invoice_form.as_p }}
+        <h3>Edit Invoice Items</h3>
+        {{ formset.management_form }}
+        {% for form in formset %}
+            <div class="invoice-item">
+                {{ form.as_p }}
+            </div>
+        {% endfor %}
+        <button type="submit">Update Invoice</button>
+    </form>
+{% endblock %}

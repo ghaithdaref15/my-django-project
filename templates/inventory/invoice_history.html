@@ -1,0 +1,31 @@
+{% extends 'inventory/base.html' %}
+{% block title %}Invoice History{% endblock %}
+{% block content %}
+    <h2>Invoice History</h2>
+    <table border="1" cellspacing="0" cellpadding="8">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Buyer</th>
+                <th>Payment Type</th>
+                <th>Total Price</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invoice in invoices %}
+            <tr>
+                <td>{{ invoice.id }}</td>
+                <td>{{ invoice.buyer_name }}</td>
+                <td>{% if invoice.is_cash %}Cash{% else %}Credit{% endif %}</td>
+                <td>{{ invoice.total_price }}</td>
+                <td>{{ invoice.date|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{% url 'edit_sale_invoice' invoice.id %}">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

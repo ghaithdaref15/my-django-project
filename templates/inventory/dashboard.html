@@ -1,0 +1,282 @@
+{% extends 'inventory/base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="dashboard-title mb-0">Main Dashboard</h2>
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary" onclick="refreshDashboard()"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+    </div>
+    
+    <!-- Main Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon sales-icon rounded-circle me-3">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Daily Sales</h6>
+                            <h3 class="mb-0">{{ total_sales }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon sales-icon rounded-circle me-3" style="background-color: rgba(52, 152, 219, 0.1); color: #3498db;">
+                            <i class="fas fa-calendar-week"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Weekly Sales</h6>
+                            <h3 class="mb-0">{{ weekly_sales }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon sales-icon rounded-circle me-3" style="background-color: rgba(46, 204, 113, 0.1); color: #2ecc71;">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Monthly Sales</h6>
+                            <h3 class="mb-0">{{ monthly_sales }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon debt-icon rounded-circle me-3">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Total Debts</h6>
+                            <h3 class="mb-0">{{ total_debt }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Second Row of Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon products-icon rounded-circle me-3">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Total Products</h6>
+                            <h3 class="mb-0">{{ total_products }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon low-stock-icon rounded-circle me-3">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Low Stock Products</h6>
+                            <h3 class="mb-0">{{ low_stock_count }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <a href="{% url 'add_sale_invoice' %}" class="btn btn-primary btn-lg w-100 h-100 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-plus-circle me-2"></i> Add New Invoice
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Recent Sales</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="salesChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Best-Selling Products</h5>
+                </div>
+                <div class="card-body">
+                    <div class="top-products">
+                        <ul class="list-group list-group-flush">
+                            {% for product in top_products %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="product-name">{{ product.name }}</span>
+                                <span class="product-sales">{{ product.sales_count }}</span>
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item text-center">No data available</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Alerts</h5>
+                    <span class="badge bg-danger rounded-pill">{{ alerts|length }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="alerts-list">
+                        {% for alert in alerts %}
+                        <div class="alert alert-{{ alert.type }} border-0 rounded-0 mb-0 d-flex align-items-center">
+                            <div class="alert-icon me-3">
+                                {% if alert.type == 'warning' %}
+                                <i class="fas fa-exclamation-triangle"></i>
+                                {% elif alert.type == 'danger' %}
+                                <i class="fas fa-bell"></i>
+                                {% else %}
+                                <i class="fas fa-info-circle"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="alert-message mb-0">{{ alert.message }}</p>
+                            </div>
+                            <div class="alert-date text-muted small">{{ alert.date }}</div>
+                        </div>
+                        {% empty %}
+                        <div class="alert alert-info border-0 rounded-0 mb-0 text-center">No alerts currently</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            // Create sales chart
+            const ctx = document.getElementById('salesChart');
+            
+            if (!ctx) {
+                console.error('Sales chart canvas element not found');
+                return;
+            }
+
+            const chartContext = ctx.getContext('2d');
+            
+            // Validate chart data
+            const labels = {{ sales_chart_data.labels|safe }};
+            const data = {{ sales_chart_data.data|safe }};
+            
+            if (!Array.isArray(labels) || !Array.isArray(data)) {
+                console.error('Invalid chart data format');
+                return;
+            }
+
+            const salesChart = new Chart(chartContext, {
+                type: 'line',
+                data: {
+                   labels: labels,
+                   datasets: [{
+                        label: 'Sales',
+                        data: data,
+                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointBackgroundColor: 'rgba(52, 152, 219, 1)',
+                        pointRadius: 4
+                    }]
+                 },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Sales: ${context.raw || 0}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error initializing sales chart:', error);
+        }
+    });
+    
+    // Function to refresh the dashboard
+    function refreshDashboard() {
+        try {
+            location.reload();
+        } catch (error) {
+            console.error('Error refreshing dashboard:', error);
+        }
+    }
+</script>
+{% endblock %}

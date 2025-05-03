@@ -1,0 +1,12 @@
+{% extends 'inventory/base.html' %}
+{% block title %}Increase Stock for {{ product.name }}{% endblock %}
+{% block content %}
+    <h2>Increase Stock for "{{ product.name }}"</h2>
+    <p>Current Stock: {{ product.stock }}</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Increase Stock</button>
+    </form>
+    <a href="{% url 'inventory' %}">Back to Inventory</a>
+{% endblock %}

@@ -1,0 +1,21 @@
+# Exclude Python temporary files
+__pycache__/
+*.pyc
+*.pyo
+
+# Exclude database files (like SQLite)
+*.sqlite3
+db.sqlite3
+
+# Exclude virtual environment related files
+env/
+venv/
+.env
+*.env
+
+# Exclude log files and temporary files
+*.log
+
+# Exclude static folders (if generated automatically)
+static/
+media/
